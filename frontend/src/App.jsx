@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/careernet.css';
 import Gnb from './components/Gnb'; // components 내부로 경로 보정
+import AllMenuPage from "./pages/AllMenuPage.jsx";
 
 // 페이지 컴포넌트 로드
 import Main from './pages/Main';
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/jobs" element={<JobInfo />} />
                     <Route path="/jobs/:jobId" element={<JobDetail />} />
                     <Route path="/mentoring" element={<Mentoring />} />
+                    <Route path="/allmenu" element={<AllMenuPage />} />
                 </Routes>
             </div>
         </Router>

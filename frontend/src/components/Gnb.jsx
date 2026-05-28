@@ -3,6 +3,13 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 
 const Gnb = ({ activeDropdown, setActiveDropdown }) => {
+    const menuData = [
+        { title: '채용정보', links: ['채용정보 상세검색', '직종별', '지역별', '테마별'] },
+        { title: '취업지원', links: ['워크넷 직업심리검사', '진로상담', '취업지원 프로그램'] },
+        { title: '직업/진로', links: ['직업정보 검색', '학과정보', '진로설계 로드맵'] },
+        { title: '고객센터', links: ['공지사항', '자주 묻는 질문', '문의하기'] }
+    ];
+
     return (
         <nav className="gnb">
             {/* 좌측 로고 영역 */}
@@ -15,6 +22,7 @@ const Gnb = ({ activeDropdown, setActiveDropdown }) => {
                 </div>
                 <span className="logo-text">CareerNet</span>
             </Link>
+
             {/* 중앙 네비게이션 */}
             <div className="gnb-nav">
                 <a className="active">진로설계</a>
@@ -88,7 +96,7 @@ const Gnb = ({ activeDropdown, setActiveDropdown }) => {
                 </div>
 
                 {/* 전체 서비스 목록 토글러 (목록 리스트 SVG) */}
-                <div className="hamburger-btn" title="전체 서비스 목록">
+                <Link to="/all-menu" className="hamburger-btn" title="전체 서비스 목록" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="8" y1="6" x2="21" y2="6"></line>
                         <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -97,7 +105,7 @@ const Gnb = ({ activeDropdown, setActiveDropdown }) => {
                         <line x1="3" y1="12" x2="3.01" y2="12"></line>
                         <line x1="3" y1="18" x2="3.01" y2="18"></line>
                     </svg>
-                </div>
+                </Link>
             </div>
         </nav>
     );

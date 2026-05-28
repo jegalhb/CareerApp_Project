@@ -1,9 +1,25 @@
 import React, { useState } from 'react';
+import Gnb from "../components/Gnb.jsx";
 
 const CareerDesign = () => {
     // 1단계부터 시작하도록 초기화
     const [step, setStep] = useState(1);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
+
+    const [formData, setFormData] = useState({ id: '', password: '', email: '' });
+
+    // 보안을 위한 회원가입 제출 핸들러 (POST 방식 예시)
+    const handleSignupSubmit = async (e) => {
+        e.preventDefault();
+        // 실제 API 호출 시에는 POST 방식을 사용하여 Body에 데이터를 담습니다.
+        console.log("보안 데이터 전송:", formData);
+        alert("회원가입 요청이 안전하게 전송되었습니다.");
+        setIsSignupPage(false); // 가입 후 메인으로 복귀
+    };
+
+
 
     // 샘플 데이터
     const selectedJob = {
