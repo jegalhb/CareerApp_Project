@@ -107,8 +107,8 @@ const MultiAssessmentRunner = ({ selectedIds, onComplete, onBack }) => {
       ─────────────────────────────────────────────────── */}
             <div style={{
                 position: 'sticky',
-                top: '108px',
-                zIndex: 20,
+                top: '58px',
+                zIndex: 800,
                 marginLeft: '-16px',
                 marginRight: '-16px',
                 paddingLeft: '16px',

@@ -1,5 +1,5 @@
 // src/pages/CareerDesign.jsx
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import AssessmentSelector from '../components/career/AssessmentSelector';
 import MultiAssessmentRunner from '../components/career/MultiAssessmentRunner';
 import MultiResultStep from '../components/career/MultiResultStep';
@@ -19,6 +19,14 @@ const CareerDesign = () => {
     const [allResults, setAllResults]       = useState({});   // { HOLLAND: {...}, ... }
     const [recommendations, setRecs]        = useState([]);
     const [selectedJob, setSelectedJob]     = useState(null);
+
+    useEffect(() => {
+        document.body.classList.toggle('assessment-running-mode', phase === 'running');
+
+        return () => {
+            document.body.classList.remove('assessment-running-mode');
+        };
+    }, [phase]);
 
     const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -63,13 +71,14 @@ const CareerDesign = () => {
     ];
     const currentIdx = PHASES.findIndex(p => p.id === phase);
 
+
     return (
         <div style={{ background: '#f9fafb', minHeight: '100vh', paddingBottom: '60px' }}>
 
             {/* 상단 스테퍼 */}
             <div style={{
                 background: '#fff', borderBottom: '1px solid #e5e7eb',
-                padding: '16px 24px', position: 'sticky', top: '56px', zIndex: 30,
+                padding: '16px 24px', position: 'sticky', top: phase === 'running' ? '0' :'56px', zIndex: 900,
             }}>
                 <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', alignItems: 'center' }}>
                     {PHASES.map((p, idx) => {
