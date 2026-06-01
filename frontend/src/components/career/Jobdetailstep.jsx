@@ -924,5 +924,9 @@ const JobDetailStep = ({ job, assessmentResult, onBack, onReset }) => {
                 }}>
                     ← 다른 직업 보기
                 </button>
+                </div>
+        </div>
+    )
+    }
 
 export default JobDetailStep;
