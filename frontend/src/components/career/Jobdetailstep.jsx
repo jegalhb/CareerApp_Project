@@ -13,6 +13,34 @@ const JobDetailStep = ({ job, assessmentResult, onBack, onReset }) => {
         { id: 'mentor',   label: '현직자 멘토' },
     ];
 
+    const mentorVisual = {
+        mentorImage: job.mentorImage || null,
+        jobImage: job.jobImage || null,
+        videoThumbnail: job.videoThumbnail || null,
+        mentorOneLine:
+            job.mentorOneLine ||
+            `${job.title}은 문제를 발견하고, 필요한 역량을 활용해 실제 결과를 만들어내는 직무입니다.`,
+        videoTitle: job.videoTitle || `${job.title} 실무 현장 미리보기`,
+    };
+
+    const mentorPrograms = [
+        {
+            icon: '❓',
+            title: `${job.title} 실무 Q&A`,
+            desc: '현직자에게 직무, 취업 준비, 실무 흐름을 직접 질문해보세요.',
+        },
+        {
+            icon: '📁',
+            title: '포트폴리오 리뷰',
+            desc: '지원 직무에 맞춰 프로젝트와 경험을 어떻게 보여줄지 피드백받습니다.',
+        },
+        {
+            icon: '🧭',
+            title: '1:1 커리어 코칭',
+            desc: '학습 방향, 전공 선택, 취업 준비 순서를 개인별로 점검합니다.',
+        },
+    ];
+
     return (
         <div style={{ paddingTop: '28px' }}>
 
@@ -277,59 +305,612 @@ const JobDetailStep = ({ job, assessmentResult, onBack, onReset }) => {
             )}
 
             {tab === 'mentor' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    {/* 멘토 프로필 */}
-                    <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {/* 현직자 멘토 메인 카드 */}
+                    <div style={{
+                        background: '#fff',
+                        borderRadius: '16px',
+                        border: '1px solid #e5e7eb',
+                        overflow: 'hidden',
+                        boxShadow: '0 10px 28px rgba(15,23,42,0.07)',
+                    }}>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1.05fr 0.95fr',
+                            minHeight: '280px',
+                        }}>
+                            {/* 좌측: 직업 이미지/비주얼 */}
                             <div style={{
-                                width: '56px', height: '56px', borderRadius: '50%',
-                                background: '#1a365d', color: '#fff',
-                                fontSize: '20px', fontWeight: 700,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                flexShrink: 0,
+                                position: 'relative',
+                                padding: '26px',
+                                color: '#fff',
+                                backgroundImage: mentorVisual.jobImage
+                                    ? `linear-gradient(rgba(15,23,42,0.55), rgba(15,23,42,0.7)), url(${mentorVisual.jobImage})`
+                                    : 'linear-gradient(135deg, #1a365d 0%, #2563eb 100%)',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
                             }}>
-                                {job.mentorName?.slice(0, 1) || '?'}
+                                {!mentorVisual.jobImage && (
+                                    <>
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '-44px',
+                                            right: '-34px',
+                                            width: '170px',
+                                            height: '170px',
+                                            borderRadius: '50%',
+                                            background: 'rgba(255,255,255,0.08)',
+                                        }} />
+                                        <div style={{
+                                            position: 'absolute',
+                                            right: '28px',
+                                            bottom: '22px',
+                                            fontSize: '92px',
+                                            opacity: 0.2,
+                                        }}>
+                                            {job.emoji}
+                                        </div>
+                                    </>
+                                )}
+
+                                <div style={{ position: 'relative', zIndex: 1 }}>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        fontSize: '11px',
+                                        fontWeight: 700,
+                                        color: '#dbeafe',
+                                        background: 'rgba(255,255,255,0.15)',
+                                        border: '1px solid rgba(255,255,255,0.22)',
+                                        borderRadius: '999px',
+                                        padding: '5px 12px',
+                                        marginBottom: '16px',
+                                    }}>
+                                        🎙 현직자 인터뷰
+                                    </span>
+
+                                    <h3 style={{
+                                        fontSize: '23px',
+                                        lineHeight: 1.35,
+                                        letterSpacing: '-0.4px',
+                                        color: '#fff',
+                                        margin: '0 0 10px',
+                                    }}>
+                                        {job.title} 실무자가 들려주는<br />
+                                        현장의 이야기
+                                    </h3>
+
+                                    <p style={{
+                                        fontSize: '13px',
+                                        lineHeight: 1.7,
+                                        color: 'rgba(255,255,255,0.78)',
+                                        margin: 0,
+                                        maxWidth: '390px',
+                                    }}>
+                                        직무의 실제 업무 흐름, 필요한 역량, 준비 방법을 현직자 관점에서 이해할 수 있습니다.
+                                    </p>
+                                </div>
+
+                                <div style={{
+                                    position: 'relative',
+                                    zIndex: 1,
+                                    display: 'flex',
+                                    gap: '8px',
+                                    flexWrap: 'wrap',
+                                    marginTop: '24px',
+                                }}>
+                                    {(job.keySkills || []).slice(0, 4).map((skill) => (
+                                        <span key={skill} style={{
+                                            fontSize: '11px',
+                                            color: '#fff',
+                                            background: 'rgba(255,255,255,0.15)',
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            borderRadius: '999px',
+                                            padding: '5px 10px',
+                                        }}>
+                                            #{skill}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
-                            <div>
-                                <div style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{job.mentorName}</div>
-                                <div style={{ fontSize: '12px', color: '#2563eb', fontWeight: 500 }}>{job.mentorRole}</div>
+
+                            {/* 우측: 멘토 프로필 */}
+                            <div style={{
+                                padding: '26px',
+                                background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                            }}>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '15px',
+                                    marginBottom: '18px',
+                                }}>
+                                    <div style={{
+                                        width: '74px',
+                                        height: '74px',
+                                        borderRadius: '24px',
+                                        backgroundImage: mentorVisual.mentorImage
+                                            ? `url(${mentorVisual.mentorImage})`
+                                            : 'linear-gradient(135deg, #1a365d, #2563eb)',
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        color: '#fff',
+                                        fontSize: '26px',
+                                        fontWeight: 800,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0,
+                                        boxShadow: '0 10px 24px rgba(37,99,235,0.22)',
+                                    }}>
+                                        {!mentorVisual.mentorImage && (job.mentorName?.slice(0, 1) || '?')}
+                                    </div>
+
+                                    <div>
+                                        <div style={{
+                                            fontSize: '17px',
+                                            fontWeight: 800,
+                                            color: '#111827',
+                                            marginBottom: '4px',
+                                        }}>
+                                            {job.mentorName || '현직자 멘토'}
+                                        </div>
+                                        <div style={{
+                                            fontSize: '12px',
+                                            color: '#2563eb',
+                                            fontWeight: 700,
+                                            lineHeight: 1.5,
+                                        }}>
+                                            {job.mentorRole || `${job.title} 현직자`}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <blockquote style={{
+                                    margin: 0,
+                                    background: '#eff6ff',
+                                    border: '1px solid #bfdbfe',
+                                    borderRadius: '14px',
+                                    padding: '16px',
+                                }}>
+                                    <div style={{
+                                        fontSize: '26px',
+                                        lineHeight: 1,
+                                        color: '#2563eb',
+                                        marginBottom: '5px',
+                                    }}>
+                                        “
+                                    </div>
+                                    <p style={{
+                                        fontSize: '14px',
+                                        color: '#1f2937',
+                                        lineHeight: 1.7,
+                                        fontWeight: 700,
+                                        margin: 0,
+                                    }}>
+                                        {job.mentorQuote || mentorVisual.mentorOneLine}
+                                    </p>
+                                </blockquote>
+
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(3, 1fr)',
+                                    gap: '8px',
+                                    marginTop: '16px',
+                                }}>
+                                    {[
+                                        { icon: '💼', label: '직무', value: '실무 중심' },
+                                        { icon: '🎯', label: '초점', value: '취업 준비' },
+                                        { icon: '📌', label: '방식', value: '로드맵형' },
+                                    ].map((item) => (
+                                        <div key={item.label} style={{
+                                            background: '#fff',
+                                            border: '1px solid #e5e7eb',
+                                            borderRadius: '12px',
+                                            padding: '10px',
+                                            textAlign: 'center',
+                                        }}>
+                                            <div style={{ fontSize: '17px', marginBottom: '3px' }}>{item.icon}</div>
+                                            <div style={{ fontSize: '10px', color: '#9ca3af' }}>{item.label}</div>
+                                            <div style={{ fontSize: '11px', color: '#111827', fontWeight: 800 }}>
+                                                {item.value}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <blockquote style={{
-                            background: '#f9fafb', borderLeft: '4px solid #1a365d',
-                            margin: 0, padding: '14px 16px', borderRadius: '0 8px 8px 0',
+                    {/* 영상 + 한줄평 섹션 */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1.05fr 0.95fr',
+                        gap: '14px',
+                    }}>
+                        {/* 영상 카드 */}
+                        <div style={{
+                            background: '#fff',
+                            borderRadius: '14px',
+                            border: '1px solid #e5e7eb',
+                            padding: '18px',
                         }}>
-                            <p style={{ fontSize: '13px', color: '#374151', lineHeight: '1.7', margin: 0, fontStyle: 'italic' }}>
-                                " {job.mentorQuote} "
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: '12px',
+                            }}>
+                                <h4 style={{
+                                    fontSize: '14px',
+                                    fontWeight: 800,
+                                    color: '#1a365d',
+                                    margin: 0,
+                                }}>
+                                    🎬 직업 관련 영상
+                                </h4>
+                                <span style={{
+                                    fontSize: '10px',
+                                    color: '#2563eb',
+                                    background: '#eff6ff',
+                                    border: '1px solid #bfdbfe',
+                                    borderRadius: '999px',
+                                    padding: '3px 8px',
+                                    fontWeight: 700,
+                                }}>
+                                    실무 미리보기
+                                </span>
+                            </div>
+
+                            <div style={{
+                                height: '220px',
+                                borderRadius: '12px',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                backgroundImage: mentorVisual.videoThumbnail
+                                    ? `linear-gradient(rgba(15,23,42,0.18), rgba(15,23,42,0.62)), url(${mentorVisual.videoThumbnail})`
+                                    : 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#fff',
+                                marginBottom: '12px',
+                            }}>
+                                {!mentorVisual.videoThumbnail && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: '18px',
+                                        top: '16px',
+                                        fontSize: '46px',
+                                        opacity: 0.28,
+                                    }}>
+                                        {job.emoji}
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (job.videoUrl) {
+                                            window.open(job.videoUrl, '_blank', 'noopener,noreferrer');
+                                        }
+                                    }}
+                                    style={{
+                                        position: 'relative',
+                                        zIndex: 1,
+                                        width: '60px',
+                                        height: '60px',
+                                        borderRadius: '50%',
+                                        border: '1px solid rgba(255,255,255,0.34)',
+                                        background: 'rgba(255,255,255,0.2)',
+                                        color: '#fff',
+                                        fontSize: '23px',
+                                        cursor: job.videoUrl ? 'pointer' : 'default',
+                                        backdropFilter: 'blur(8px)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                    title={job.videoUrl ? '영상 보기' : '준비 중인 영상입니다'}
+                                >
+                                    ▶
+                                </button>
+
+                                <div style={{
+                                    position: 'absolute',
+                                    left: '18px',
+                                    right: '18px',
+                                    bottom: '16px',
+                                    zIndex: 1,
+                                }}>
+                                    <div style={{
+                                        fontSize: '13px',
+                                        fontWeight: 800,
+                                        color: '#fff',
+                                        marginBottom: '4px',
+                                    }}>
+                                        {mentorVisual.videoTitle}
+                                    </div>
+                                    <div style={{
+                                        fontSize: '11px',
+                                        color: 'rgba(255,255,255,0.72)',
+                                    }}>
+                                        {job.videoUrl ? '클릭하면 관련 영상을 새 창에서 볼 수 있습니다.' : '관련 영상 콘텐츠를 준비 중입니다.'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p style={{
+                                fontSize: '12px',
+                                color: '#6b7280',
+                                lineHeight: 1.65,
+                                margin: 0,
+                            }}>
+                                영상 콘텐츠를 통해 {job.title}의 실제 업무 장면, 협업 방식, 사용하는 도구를 더 쉽게 이해할 수 있습니다.
                             </p>
-                        </blockquote>
+                        </div>
+
+                        {/* 한줄평 + 이미지 키워드 */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '14px',
+                        }}>
+                            <div style={{
+                                background: '#fff',
+                                borderRadius: '14px',
+                                border: '1px solid #e5e7eb',
+                                padding: '18px',
+                                flex: 1,
+                            }}>
+                                <h4 style={{
+                                    fontSize: '14px',
+                                    fontWeight: 800,
+                                    color: '#1a365d',
+                                    margin: '0 0 12px',
+                                }}>
+                                    💬 직무 한줄평
+                                </h4>
+
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #eff6ff, #f8fafc)',
+                                    border: '1px solid #bfdbfe',
+                                    borderRadius: '14px',
+                                    padding: '16px',
+                                }}>
+                                    <p style={{
+                                        fontSize: '14px',
+                                        color: '#1f2937',
+                                        lineHeight: 1.7,
+                                        margin: 0,
+                                        fontWeight: 800,
+                                    }}>
+                                        “{mentorVisual.mentorOneLine}”
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div style={{
+                                background: '#fff',
+                                borderRadius: '14px',
+                                border: '1px solid #e5e7eb',
+                                padding: '18px',
+                                flex: 1,
+                            }}>
+                                <h4 style={{
+                                    fontSize: '14px',
+                                    fontWeight: 800,
+                                    color: '#1a365d',
+                                    margin: '0 0 12px',
+                                }}>
+                                    🖼 직무 이미지 키워드
+                                </h4>
+
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(2, 1fr)',
+                                    gap: '8px',
+                                }}>
+                                    {[
+                                        { icon: '🧩', label: '문제 해결' },
+                                        { icon: '🤝', label: '협업' },
+                                        { icon: '📊', label: '성과 관리' },
+                                        { icon: '🚀', label: '성장 가능성' },
+                                    ].map((item) => (
+                                        <div key={item.label} style={{
+                                            background: '#f9fafb',
+                                            border: '1px solid #e5e7eb',
+                                            borderRadius: '12px',
+                                            padding: '12px',
+                                            textAlign: 'center',
+                                        }}>
+                                            <div style={{ fontSize: '22px', marginBottom: '6px' }}>
+                                                {item.icon}
+                                            </div>
+                                            <div style={{
+                                                fontSize: '11px',
+                                                color: '#374151',
+                                                fontWeight: 800,
+                                            }}>
+                                                {item.label}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 실무 포인트 */}
+                    <div style={{
+                        background: '#fff',
+                        borderRadius: '14px',
+                        border: '1px solid #e5e7eb',
+                        padding: '20px',
+                    }}>
+                        <h4 style={{
+                            fontSize: '14px',
+                            fontWeight: 800,
+                            color: '#1a365d',
+                            margin: '0 0 14px',
+                        }}>
+                            ✨ 실무자가 알려주는 핵심 포인트
+                        </h4>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: '12px',
+                        }}>
+                            {[
+                                {
+                                    icon: '📌',
+                                    title: '주요 업무',
+                                    desc: job.desc,
+                                },
+                                {
+                                    icon: '🛠',
+                                    title: '필요 역량',
+                                    desc: `${(job.keySkills || []).slice(0, 3).join(', ')} 역량이 중요합니다.`,
+                                },
+                                {
+                                    icon: '🎓',
+                                    title: '준비 방법',
+                                    desc: `${(job.requiredMajors || []).slice(0, 2).join(', ')} 관련 학습과 프로젝트 경험을 함께 쌓아보세요.`,
+                                },
+                            ].map((point) => (
+                                <div key={point.title} style={{
+                                    background: '#f9fafb',
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: '14px',
+                                    padding: '16px',
+                                }}>
+                                    <div style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '12px',
+                                        background: '#eff6ff',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '18px',
+                                        marginBottom: '10px',
+                                    }}>
+                                        {point.icon}
+                                    </div>
+                                    <div style={{
+                                        fontSize: '13px',
+                                        fontWeight: 800,
+                                        color: '#111827',
+                                        marginBottom: '7px',
+                                    }}>
+                                        {point.title}
+                                    </div>
+                                    <p style={{
+                                        fontSize: '12px',
+                                        color: '#6b7280',
+                                        lineHeight: 1.65,
+                                        margin: 0,
+                                    }}>
+                                        {point.desc}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* 멘토링 프로그램 */}
-                    <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '20px' }}>
-                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#1a365d', margin: '0 0 14px' }}>
-                            🤝 관련 멘토링 프로그램
-                        </h4>
-                        {[
-                            `실무자와 함께하는 ${job.title} Q&A`,
-                            '현직자 포트폴리오 리뷰',
-                            '취업 준비 1:1 커리어 코칭',
-                        ].map((program, i) => (
-                            <div key={i} style={{
-                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                padding: '10px 0',
-                                borderBottom: i < 2 ? '1px solid #f3f4f6' : 'none',
-                            }}>
-                                <span style={{ fontSize: '13px', color: '#374151' }}>• {program}</span>
-                                <button style={{
-                                    fontSize: '11px', padding: '4px 12px', borderRadius: '6px',
-                                    background: '#1a365d', color: '#fff', border: 'none', cursor: 'pointer',
+                    <div style={{
+                        background: '#fff',
+                        borderRadius: '14px',
+                        border: '1px solid #e5e7eb',
+                        padding: '20px',
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-end',
+                            gap: '12px',
+                            marginBottom: '14px',
+                        }}>
+                            <div>
+                                <h4 style={{
+                                    fontSize: '14px',
+                                    fontWeight: 800,
+                                    color: '#1a365d',
+                                    margin: '0 0 4px',
                                 }}>
-                                    신청
-                                </button>
+                                    🤝 관련 멘토링 프로그램
+                                </h4>
+                                <p style={{
+                                    fontSize: '12px',
+                                    color: '#9ca3af',
+                                    margin: 0,
+                                }}>
+                                    관심 있는 프로그램을 선택해 실무자와 더 깊게 연결해보세요.
+                                </p>
                             </div>
-                        ))}
+                        </div>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: '10px',
+                        }}>
+                            {mentorPrograms.map((program) => (
+                                <div key={program.title} style={{
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: '14px',
+                                    padding: '15px',
+                                    background: '#fff',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '10px',
+                                }}>
+                                    <div style={{ fontSize: '24px' }}>{program.icon}</div>
+                                    <div>
+                                        <div style={{
+                                            fontSize: '13px',
+                                            color: '#111827',
+                                            fontWeight: 800,
+                                            marginBottom: '4px',
+                                        }}>
+                                            {program.title}
+                                        </div>
+                                        <div style={{
+                                            fontSize: '11px',
+                                            color: '#6b7280',
+                                            lineHeight: 1.5,
+                                        }}>
+                                            {program.desc}
+                                        </div>
+                                    </div>
+                                    <button style={{
+                                        marginTop: 'auto',
+                                        fontSize: '12px',
+                                        padding: '8px 10px',
+                                        borderRadius: '8px',
+                                        background: '#1a365d',
+                                        color: '#fff',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontWeight: 700,
+                                    }}>
+                                        신청하기
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}
@@ -343,16 +924,5 @@ const JobDetailStep = ({ job, assessmentResult, onBack, onReset }) => {
                 }}>
                     ← 다른 직업 보기
                 </button>
-                <button onClick={onReset} style={{
-                    flex: 1, padding: '12px', borderRadius: '8px',
-                    border: 'none', background: '#1a365d',
-                    color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-                }}>
-                    ↺ 검사 다시 하기
-                </button>
-            </div>
-        </div>
-    );
-};
 
 export default JobDetailStep;

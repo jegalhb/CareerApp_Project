@@ -139,9 +139,17 @@ export function calcBig5Result(answers) {
 
 /** Holland: 기존 hollandCodes 가중치 매핑 */
 function hollandJobScore(job, pct) {
-    const codes   = (job.hollandCodes || '').trim().split(/\s+/);
+    const codes = Array.isArray(job.hollandCodes)
+        ? job.hollandCodes
+        : String(job.hollandCodes || '').trim().split(/\s+/).filter(Boolean);
+
     const weights = [0.5, 0.3, 0.2];
-    return Math.round(codes.reduce((sum, c, i) => sum + (pct[c] ?? 0) * (weights[i] ?? 0.1), 0));
+
+    return Math.round(
+        codes.reduce((sum, c, i) => {
+            return sum + (pct[c] ?? 0) * (weights[i] ?? 0.1);
+        }, 0)
+    );
 }
 
 /** 적성/가치관/Big5: JOB_TAGS 기반 상위 매칭 */
