@@ -1,130 +1,149 @@
 // src/pages/CareerDesign.jsx
 import React, { useState } from 'react';
-import AssessmentStep from '../components/career/AssessmentStep';
-import ResultStep     from '../components/career/ResultStep';
-import JobDetailStep  from '../components/career/JobDetailStep';
+import AssessmentSelector from '../components/career/AssessmentSelector';
+import MultiAssessmentRunner from '../components/career/MultiAssessmentRunner';
+import MultiResultStep from '../components/career/MultiResultStep';
+import JobDetailStep from '../components/career/JobDetailStep';
 
 /**
- * 3단계 진로설계 페이지
- *  Step 1 — AssessmentStep  : Holland RIASEC 적성검사
- *  Step 2 — ResultStep      : 직업 추천 결과 리스트
- *  Step 3 — JobDetailStep   : 선택 직업 상세 정보
+ * 진로설계 메인 페이지
+ *
+ * Phase 1 — AssessmentSelector   : 검사 선택 (1~4개)
+ * Phase 2 — MultiAssessmentRunner : 선택된 검사 순차 진행
+ * Phase 3 — MultiResultStep       : 통합 결과 + 직업 추천
+ * Phase 4 — JobDetailStep         : 직업 상세
  */
 const CareerDesign = () => {
-    const [step, setStep]               = useState(1);
-    const [assessmentResult, setResult] = useState(null); // hollandMatcher 결과
-    const [selectedJob, setSelectedJob] = useState(null); // 선택된 직업 객체
+    const [phase, setPhase] = useState('select'); // select | running | result | detail
+    const [selectedIds, setSelectedIds]     = useState([]);   // ['HOLLAND','BIG5', ...]
+    const [allResults, setAllResults]       = useState({});   // { HOLLAND: {...}, ... }
+    const [recommendations, setRecs]        = useState([]);
+    const [selectedJob, setSelectedJob]     = useState(null);
 
-    // 1→2: 검사 완료
-    const handleAssessmentDone = (result) => {
-        setResult(result);
-        setStep(2);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const handleSelectDone = (ids) => {
+        setSelectedIds(ids);
+        setAllResults({});
+        setPhase('running');
+        scrollTop();
     };
 
-    // 2→3: 직업 선택
+    const handleRunnerDone = (results, recs) => {
+        setAllResults(results);
+        setRecs(recs);
+        setPhase('result');
+        scrollTop();
+    };
+
     const handleJobSelect = (job) => {
         setSelectedJob(job);
-        setStep(3);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setPhase('detail');
+        scrollTop();
     };
 
-    // 뒤로 가기
-    const handleBack = () => {
-        setStep((prev) => Math.max(1, prev - 1));
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // 처음부터 다시
     const handleReset = () => {
-        setStep(1);
-        setResult(null);
+        setPhase('select');
+        setSelectedIds([]);
+        setAllResults({});
+        setRecs([]);
         setSelectedJob(null);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollTop();
     };
 
-    const STEP_LABELS = ['적성 검사', '결과 리스트', '직업 탐색'];
+    const handleBackToResult = () => { setPhase('result'); scrollTop(); };
+    const handleBackToSelect = () => { setPhase('select'); scrollTop(); };
+
+    // ── 상단 진행 스테퍼 ──────────────────────────────────
+    const PHASES = [
+        { id: 'select',  label: '검사 선택' },
+        { id: 'running', label: '검사 진행' },
+        { id: 'result',  label: '통합 결과' },
+        { id: 'detail',  label: '직업 탐색' },
+    ];
+    const currentIdx = PHASES.findIndex(p => p.id === phase);
 
     return (
         <div style={{ background: '#f9fafb', minHeight: '100vh', paddingBottom: '60px' }}>
 
-            {/* ── 상단 스테퍼 ── */}
+            {/* 상단 스테퍼 */}
             <div style={{
-                background: '#fff',
-                borderBottom: '1px solid #e5e7eb',
-                padding: '20px 24px',
-                position: 'sticky',
-                top: '56px',  /* GNB 높이만큼 */
-                zIndex: 30,
+                background: '#fff', borderBottom: '1px solid #e5e7eb',
+                padding: '16px 24px', position: 'sticky', top: '56px', zIndex: 30,
             }}>
-                <div style={{ maxWidth: '860px', margin: '0 auto' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                        {STEP_LABELS.map((label, idx) => {
-                            const num       = idx + 1;
-                            const isActive  = step === num;
-                            const isDone    = step > num;
-                            return (
-                                <React.Fragment key={num}>
-                                    {/* 단계 버튼 */}
-                                    <button
-                                        onClick={() => isDone && setStep(num)}
-                                        style={{
-                                            display: 'flex', alignItems: 'center', gap: '8px',
-                                            padding: '8px 14px', borderRadius: '24px', border: 'none',
-                                            background: isActive ? '#1a365d' : isDone ? '#dbeafe' : '#f3f4f6',
-                                            color: isActive ? '#fff' : isDone ? '#1e40af' : '#9ca3af',
-                                            fontWeight: isActive ? 700 : 500,
-                                            fontSize: '13px',
-                                            cursor: isDone ? 'pointer' : 'default',
-                                            transition: 'all 0.2s',
-                                            whiteSpace: 'nowrap',
-                                        }}
-                                    >
-                    <span style={{
-                        width: '20px', height: '20px', borderRadius: '50%',
-                        background: isActive ? 'rgba(255,255,255,0.2)' : isDone ? '#2563eb' : '#d1d5db',
-                        color: isActive ? '#fff' : isDone ? '#fff' : '#6b7280',
-                        fontSize: '11px', fontWeight: 700,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0,
-                    }}>
-                      {isDone ? '✓' : num}
-                    </span>
-                                        {label}
-                                    </button>
-
-                                    {/* 연결선 */}
-                                    {idx < STEP_LABELS.length - 1 && (
-                                        <div style={{
-                                            flex: 1, height: '2px',
-                                            background: step > num + 1 ? '#2563eb' : step === num + 1 ? '#93c5fd' : '#e5e7eb',
-                                            margin: '0 4px',
-                                        }} />
-                                    )}
-                                </React.Fragment>
-                            );
-                        })}
-                    </div>
+                <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', alignItems: 'center' }}>
+                    {PHASES.map((p, idx) => {
+                        const isDone   = idx < currentIdx;
+                        const isActive = idx === currentIdx;
+                        return (
+                            <React.Fragment key={p.id}>
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '6px 12px', borderRadius: '20px', fontSize: '12px',
+                                    fontWeight: isActive ? 700 : 500,
+                                    background: isActive ? '#1a365d' : isDone ? '#dbeafe' : 'transparent',
+                                    color: isActive ? '#fff' : isDone ? '#1e40af' : '#9ca3af',
+                                    cursor: isDone ? 'pointer' : 'default',
+                                    whiteSpace: 'nowrap',
+                                    transition: 'all 0.2s',
+                                }}
+                                     onClick={() => {
+                                         if (isDone) {
+                                             if (idx === 0) handleReset();
+                                             if (idx === 2 && phase === 'detail') setPhase('result');
+                                         }
+                                     }}
+                                >
+                  <span style={{
+                      width: '18px', height: '18px', borderRadius: '50%',
+                      background: isActive ? 'rgba(255,255,255,0.25)'
+                          : isDone  ? '#2563eb' : '#e5e7eb',
+                      color: isActive || isDone ? '#fff' : '#9ca3af',
+                      fontSize: '10px', fontWeight: 700,
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {isDone ? '✓' : idx + 1}
+                  </span>
+                                    {p.label}
+                                </div>
+                                {idx < PHASES.length - 1 && (
+                                    <div style={{
+                                        flex: 1, height: '2px', margin: '0 2px',
+                                        background: isDone ? '#93c5fd' : '#e5e7eb',
+                                    }} />
+                                )}
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* ── 단계별 콘텐츠 ── */}
-            <div style={{ maxWidth: '920px', margin: '0 auto', padding: '0 16px' }}>
-                {step === 1 && (
-                    <AssessmentStep onComplete={handleAssessmentDone} />
+            {/* 페이즈별 콘텐츠 */}
+            <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 16px' }}>
+                {phase === 'select' && (
+                    <AssessmentSelector onConfirm={handleSelectDone} />
                 )}
-                {step === 2 && assessmentResult && (
-                    <ResultStep
-                        result={assessmentResult}
+                {phase === 'running' && (
+                    <MultiAssessmentRunner
+                        selectedIds={selectedIds}
+                        onComplete={handleRunnerDone}
+                        onBack={handleBackToSelect}
+                    />
+                )}
+                {phase === 'result' && (
+                    <MultiResultStep
+                        allResults={allResults}
+                        recommendations={recommendations}
+                        selectedIds={selectedIds}
                         onSelectJob={handleJobSelect}
                         onReset={handleReset}
                     />
                 )}
-                {step === 3 && selectedJob && (
+                {phase === 'detail' && selectedJob && (
                     <JobDetailStep
                         job={selectedJob}
-                        assessmentResult={assessmentResult}
-                        onBack={handleBack}
+                        allResults={allResults}
+                        onBack={handleBackToResult}
                         onReset={handleReset}
                     />
                 )}
